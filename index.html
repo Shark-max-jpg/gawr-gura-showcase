@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gawr Gura — 人物展示</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --primary: #00b4d8;
+    --primary-dark: #0077b6;
+    --accent: #90e0ef;
+    --dark: #0a1628;
+    --card-bg: rgba(10, 22, 40, 0.7);
+    --text: #e0f7ff;
+    --muted: #8fb8cc;
+    --gold: #ffd166;
+    --gradient-start: #023e8a;
+    --gradient-mid: #0077b6;
+    --gradient-end: #00b4d8;
+  }
+
+  body {
+    font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── Animated Ocean Background ── */
+  .bg-ocean {
+    position: fixed; inset: 0; z-index: 0;
+    background: linear-gradient(180deg, #030124 0%, #0a1628 30%, #003566 60%, #0077b6 100%);
+    overflow: hidden;
+  }
+  .bg-ocean::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 800px 400px at 20% 80%, rgba(0,180,216,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 600px 300px at 80% 30%, rgba(144,224,239,0.08) 0%, transparent 70%);
+    animation: shimmer 8s ease-in-out infinite alternate;
+  }
+  @keyframes shimmer {
+    0% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.05); }
+  }
+
+  /* Bubbles */
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), rgba(0,180,216,0.08));
+    border: 1px solid rgba(255,255,255,0.15);
+    animation: rise linear infinite;
+    pointer-events: none;
+  }
+  @keyframes rise {
+    0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+  }
+
+  /* Wave line */
+  .wave {
+    position: fixed; bottom: 0; left: 0; width: 200%; height: 120px; z-index: 1;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(90deg, transparent, transparent calc(50% - 1px), rgba(0,180,216,0.05) calc(50% - 1px), rgba(0,180,216,0.05) 50%),
+      linear-gradient(180deg, transparent 0%, rgba(0,119,182,0.15) 100%);
+    animation: waveDrift 12s linear infinite;
+  }
+  @keyframes waveDrift {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── Main Layout ── */
+  .container {
+    position: relative; z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── Hero Section ── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    min-height: 80vh;
+    padding: 40px 0 80px;
+  }
+
+  .hero-text h1 {
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, var(--primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 40px rgba(0,180,216,0.3));
+  }
+  .hero-text .subtitle {
+    font-size: 1.25rem;
+    color: var(--muted);
+    margin-top: 12px;
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+  .hero-text .catchphrase {
+    margin-top: 28px;
+    padding: 20px 28px;
+    border-left: 4px solid var(--primary);
+    background: rgba(0,180,216,0.06);
+    border-radius: 0 12px 12px 0;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .hero-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  .hero-image img {
+    width: 100%;
+    max-width: 480px;
+    border-radius: 24px;
+    object-fit: cover;
+    box-shadow:
+      0 0 60px rgba(0,180,216,0.25),
+      0 20px 60px rgba(0,0,0,0.5);
+    animation: float 6s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-image::before {
+    content: '';
+    position: absolute;
+    width: 360px; height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,180,216,0.2) 0%, transparent 70%);
+    animation: pulse 4s ease-in-out infinite;
+    z-index: 1;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-18px); }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+
+  /* ── Info Cards ── */
+  .section-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 48px;
+    position: relative;
+  }
+  .section-title span {
+    background: linear-gradient(90deg, var(--accent), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    margin: 14px auto 0;
+    border-radius: 2px;
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 80px;
+  }
+
+  .profile-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0,180,216,0.15);
+    border-radius: 20px;
+    padding: 32px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .profile-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+  .profile-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(0,180,216,0.4);
+    box-shadow: 0 20px 50px rgba(0,180,216,0.15);
+  }
+  .profile-card:hover::before { opacity: 1; }
+
+  .profile-card .icon {
+    font-size: 2.2rem;
+    margin-bottom: 16px;
+    display: inline-block;
+  }
+  .profile-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .profile-card p {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .profile-card .value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 4px;
+  }
+
+  /* ── Gallery ── */
+  .gallery {
+    margin-bottom: 80px;
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .gallery-item {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    cursor: pointer;
+    border: 1px solid rgba(0,180,216,0.12);
+    transition: all 0.4s;
+  }
+  .gallery-item:hover {
+    transform: scale(1.03);
+    border-color: rgba(0,180,216,0.5);
+    box-shadow: 0 12px 40px rgba(0,180,216,0.2);
+  }
+  .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+  }
+  .gallery-item:hover img {
+    transform: scale(1.1);
+  }
+  .gallery-item .overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 20px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    transform: translateY(100%);
+    transition: transform 0.4s;
+  }
+  .gallery-item:hover .overlay {
+    transform: translateY(0);
+  }
+  .gallery-item .overlay p {
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto 80px;
+    padding-left: 40px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--primary), rgba(0,180,216,0.1));
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 36px;
+    padding: 20px 24px;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,180,216,0.12);
+    border-radius: 14px;
+    transition: all 0.3s;
+  }
+  .timeline-item:hover {
+    border-color: rgba(0,180,216,0.4);
+    transform: translateX(6px);
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -33px; top: 26px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 12px rgba(0,180,216,0.5);
+  }
+  .timeline-item .date {
+    font-size: 0.85rem;
+    color: var(--primary);
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .timeline-item h4 {
+    font-size: 1.1rem;
+    color: #fff;
+    margin: 6px 0 4px;
+  }
+  .timeline-item p {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── Stats Bar ── */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin-bottom: 80px;
+  }
+  .stat-item {
+    text-align: center;
+    padding: 28px 16px;
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0,180,216,0.12);
+    border-radius: 18px;
+    transition: all 0.3s;
+  }
+  .stat-item:hover {
+    border-color: var(--primary);
+    transform: translateY(-4px);
+  }
+  .stat-item .number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-item .label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 40px 0 20px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    border-top: 1px solid rgba(0,180,216,0.1);
+  }
+  footer a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+  footer a:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 32px;
+      min-height: auto;
+      padding-top: 60px;
+    }
+    .hero-image img { max-width: 340px; }
+    .hero-text .catchphrase { text-align: left; }
+    .container { padding: 20px 16px 60px; }
+  }
+
+  /* ── Scroll Reveal ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-ocean" id="ocean"></div>
+<div class="wave"></div>
+
+<div class="container">
+
+  <!-- ═══ Hero ═══ -->
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Gawr Gura</h1>
+      <p class="subtitle">Hololive English — Myth · 鲨鱼女孩 VTuber</p>
+      <div class="catchphrase">
+        「It's so boring down there… LOLOLOL!」<br>
+        来自失落之城亚特兰蒂斯的鲨鱼后裔，一个可爱、调皮又充满魅力的虚拟偶像。
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="E:/Yi/.agnes/cache/search/web_images/2026-07-20/ab6021ccb415629a1df2fd25c96f6c522d899b36c94b3f6a5d446bd5bbafbbfa.png" alt="Gawr Gura">
+    </div>
+  </section>
+
+  <!-- ═══ Stats ═══ -->
+  <section class="reveal">
+    <h2 class="section-title"><span>数据亮点</span></h2>
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="number">4.71M</div>
+        <div class="label">YouTube 订阅者</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">#1</div>
+        <div class="label">全球订阅量最高 VTuber</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">141cm</div>
+        <div class="label">角色身高</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">5年</div>
+        <div class="label">Hololive 活动期</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Profile Cards ═══ -->
+  <section class="reveal">
+    <h2 class="section-title"><span>角色档案</span></h2>
+    <div class="profile-grid">
+      <div class="profile-card">
+        <div class="icon">🦈</div>
+        <h3>身份</h3>
+        <p class="value">鲨鱼主题 VTuber / Idol</p>
+        <p>来自亚特兰蒂斯的少女，穿着在人类世界买的衣服和鲨鱼帽。</p>
+      </div>
+      <div class="profile-card">
+        <div class="icon">📅</div>
+        <h3>生日 & 出道</h3>
+        <p class="value">6月20日 / 2020年9月13日</p>
+        <p>生日是6月20日，于2020年9月13日正式出道。</p>
+      </div>
+      <div class="profile-card">
+        <div class="icon">👥</div>
+        <h3>所属团体</h3>
+        <p class="value">Hololive English — Myth</p>
+        <p>与 Mori Calliope、Watson Amelia、Takanashi Kiara、Ninomae Ina'nis 组成 HoloMyth。</p>
+      </div>
+      <div class="profile-card">
+        <div class="icon">🎨</div>
+        <h3>画师</h3>
+        <p class="value">天城ナツキ (Amashiro Natsuki)</p>
+        <p>角色设计由画师天城ナツキ负责。</p>
+      </div>
+      <div class="profile-card">
+        <div class="icon">💙</div>
+        <h3>粉丝名称</h3>
+        <p class="value">Chumbuds</p>
+        <p>粉丝群体被称为 "Chumbuds"，是 Gura 最忠实的支持者。</p>
+      </div>
+      <div class="profile-card">
+        <div class="icon">🎮</div>
+        <h3>特色</h3>
+        <p class="value">游戏、音乐、幽默</p>
+        <p>以搞笑风格、音乐才华和游戏实力闻名，标志性的「LOLOLOL」笑声深入人心。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Gallery ═══ -->
+  <section class="gallery reveal">
+    <h2 class="section-title"><span>图片画廊</span></h2>
+    <div class="gallery-grid">
+      <div class="gallery-item">
+        <img src="E:/Yi/.agnes/cache/search/web_images/2026-07-20/ab6021ccb415629a1df2fd25c96f6c522d899b36c94b3f6a5d446bd5bbafbbfa.png" alt="Gawr Gura 官方">
+        <div class="overlay"><p>Hololive 官方形象</p></div>
+      </div>
+      <div class="gallery-item">
+        <img src="E:/Yi/.agnes/cache/search/web_images/2026-07-20/16493d925a51e3106f9d83cc7cd636c1b19a5e207f8b4a32a8f28894f4ffd02e.webp" alt="Gawr Gura Interview">
+        <div class="overlay"><p>Crunchyroll 深度访谈</p></div>
+      </div>
+      <div class="gallery-item">
+        <img src="E:/Yi/.agnes/cache/search/web_images/2026-07-20/f0453eedde3551f0ac8cab65783df68b134bec13682b13accca9a050a1a21799.webp" alt="Gawr Gura Art">
+        <div class="overlay"><p>角色艺术图</p></div>
+      </div>
+      <div class="gallery-item">
+        <img src="E:/Yi/.agnes/cache/search/web_images/2026-07-20/72ca99e20341f57cd70b549ed6ea21a92ef44751d064bf901c1180d71ddd6b16.webp" alt="Gawr Gura Illustration">
+        <div class="overlay"><p>插画作品</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Timeline ═══ -->
+  <section class="reveal">
+    <h2 class="section-title"><span>重要时刻</span></h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="date">2020年9月13日</div>
+        <h4>正式出道</h4>
+        <p>作为 Hololive English 第一期生「Myth」成员出道，迅速引发关注。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="date">2020年10月22日</div>
+        <h4>百万订阅里程碑</h4>
+        <p>出道仅40天即突破100万订阅，成为当时最快达到此成就的 VTuber。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="date">2021年1月17日</div>
+        <h4>两百万订阅</h4>
+        <p>成为首位达成200万订阅的 Hololive 成员，也是全球第二位达成此成就的 VTuber。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="date">2025年</div>
+        <h4>毕业</h4>
+        <p>于2025年5月从 Hololive 毕业，结束了五年的辉煌活动生涯，最终达到471万订阅者。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Footer ═══ -->
+  <footer>
+    <p>
+      图片来源：
+      <a href="https://hololive.hololivepro.com/en/talents/gawr-gura/" target="_blank">Hololive 官网</a> ·
+      <a href="https://crunchyroll.com" target="_blank">Crunchyroll</a> ·
+      <a href="https://virtualyoutuber.fandom.com/wiki/Gawr_Gura" target="_blank">VTuber Wiki</a>
+    </p>
+    <p style="margin-top: 8px;">本页面为粉丝展示用途 · Gawr Gura © Cover Corp.</p>
+  </footer>
+
+</div>
+
+<script>
+  // ── Bubbles ──
+  const ocean = document.getElementById('ocean');
+  for (let i = 0; i < 20; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = Math.random() * 40 + 10;
+    b.style.width = size + 'px';
+    b.style.height = size + 'px';
+    b.style.left = Math.random() * 100 + '%';
+    b.style.animationDuration = (Math.random() * 12 + 8) + 's';
+    b.style.animationDelay = (Math.random() * 10) + 's';
+    ocean.appendChild(b);
+  }
+
+  // ── Scroll Reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
